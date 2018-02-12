@@ -11,19 +11,20 @@
         <stop offset="95%" stop-color="aqua"/>
       </radialGradient>
     </defs>
-    {{#animated-each points use=transition key='country' as |point|}}
-    <g>
-      <title>{{point.country}}<br>{{point.population}} people<br>${{point.gdp}} income/capita<br>{{point.life}} years expected
-      </title>
-      <circle 
-        cx={{scale point.gdp minValue=400 maxValue=190000 measure='x'}} 
-        cy={{scale point.life minValue=10 maxValue=90 measure='y'}}
-        r={{scale point.population minValue=2000 maxValue="1380000000" measure='r'}} 
+    
+    {{#each points as |point|}}
+      <g>
+        <title>{{point.country}}<br>{{point.population}} people<br>${{point.gdp}} income/capita<br>{{point.life}} years expected
+        </title>
+      <circle
+        cx={{scale point.gdp minValue=400 maxValue=190000 scale="log" }}
+        cy={{scale point.life minValue=10 maxValue=90 invert=true}}
+        r={{scale point.population minValue=2000 maxValue="1380000000" measure='r'}}
         fill="lightgreen"
         stroke="black" stroke-width="0.5"
-      />
-    </g>
-    {{/animated-each}}
+        />
+        </g>
+    {{/each}}
 
   </svg>
 
@@ -65,3 +66,4 @@
 <br>
 {{currentYear}}
 {{input type='range' min='1950' max='2015' value=currentYear}} 
+<button {{action "play"}} >Play</button>
