@@ -1,10 +1,12 @@
 import { helper } from '@ember/component/helper';
 
-export function scale([value], { minValue, maxValue, measure, scale, invert }) {
-  if( measure === 'r' ) {  // circle radius
-    let perc = (100 * (value - minValue)/(maxValue - minValue))
-    return `${ perc * 0.087 + 0.3 }%`; // circle radii are at least 0.3%
-  }                                    // but no more than 9% of chart x-axis
+export function scale([value], { minValue, maxValue, scale, invert, minCircleArea, scaleCircleArea }) {
+  if( minCircleArea ) { 
+    let percentageOfMax = (100 * (value - minValue)/(maxValue - minValue))
+    let circleArea = percentageOfMax * scaleCircleArea + minCircleArea;
+    let radius = Math.sqrt( circleArea / Math.PI );
+    return `${ radius }`;
+  }
 
   if (scale === 'log') {
     value = Math.log2(value);
