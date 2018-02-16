@@ -16,11 +16,16 @@ export default Component.extend({
 
   layout,
 
+  isTraversingYears: false,
   actions: {
     play() {
+      if (this.isTraversingYears) { return; }
+
+      this.set('isTraversingYears', true);
+
       setInterval(() => {
         this.set('currentYear', parseInt(this.get('currentYear')) + 1);
-      }, 1000);
+      }, 100);
 
     }
   }

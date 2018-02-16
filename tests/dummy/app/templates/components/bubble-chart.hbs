@@ -57,4 +57,7 @@
 <br>
 {{currentYear}}
 {{input type='range' min='1950' max='2015' value=currentYear}} 
-<button {{action "play"}} >Play</button>
+<button onclick={{action "play"}} >
+  Play
+  {{loading-spinner}}
+</button>
