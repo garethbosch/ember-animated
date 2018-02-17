@@ -2,6 +2,7 @@ import Component from '@ember/component';
 import layout from '../templates/components/bubble-chart';
 import { computed } from '@ember/object';
 import Move from 'ember-animated/motions/move';
+import { task } from 'ember-concurrency';
 
 export default Component.extend({
 
@@ -16,19 +17,20 @@ export default Component.extend({
 
   layout,
 
-  isTraversingYears: false,
-  actions: {
-    play() {
-      if (this.isTraversingYears) { return; }
+  play: task(function *() {
+    let id = setInterval(() => {
+      this.set('currentYear', parseInt(this.get('currentYear')) + 1);
+    }, 100);
+  }).drop(),
 
-      this.set('isTraversingYears', true);
-
-      setInterval(() => {
-        this.set('currentYear', parseInt(this.get('currentYear')) + 1);
-      }, 100);
-
-    }
-  }
+  // actions: {
+  //   play() {
+  //     setInterval(() => {
+  //       this.set('currentYear', parseInt(this.get('currentYear')) + 1);
+  //     }, 100);
+  //   }
+  // }
+  
 });
 
 function * transition() {

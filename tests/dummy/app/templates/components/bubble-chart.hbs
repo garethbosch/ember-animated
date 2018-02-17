@@ -6,9 +6,7 @@
       version="1.1" xmlns="http://www.w3.org/2000/svg">  
     {{#each points as |point|}}
       <g>
-        <title>{{point.country}}<br>
-          {{point.population}} people<br>
-          ${{point.gdp}} income/capita<br>{{point.life}} years expected</title>
+        <title>{{point.country}}<br>{{point.population}} people<br>${{point.gdp}} income/capita<br>{{point.life}} years expected</title>
         <circle
           cx={{scale point.gdp minValue=350 maxValue=190000 scale="log" }}
           cy={{scale point.life minValue=10 maxValue=90 invert=true}}
@@ -57,7 +55,6 @@
 <br>
 {{currentYear}}
 {{input type='range' min='1950' max='2015' value=currentYear}} 
-<button onclick={{action "play"}} >
+<button onclick={{perform play}}>
   Play
-  {{loading-spinner}}
 </button>
