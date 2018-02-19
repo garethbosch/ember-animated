@@ -17,11 +17,25 @@ export default Component.extend({
 
   layout,
 
-  play: task(function *() {
-    let id = setInterval(() => {
-      this.set('currentYear', parseInt(this.get('currentYear')) + 1);
+  playID: null, 
+  play: task(function * () {
+    if (this.get('playID') !== null) { return } //play in progress
+    let id = yield setInterval(() => {
+      if (this.get('currentYear') < 2015) {
+        this.set('currentYear', parseInt(this.get('currentYear')) + 1);
+      } else {
+        clearInterval(parseInt(this.get('playID')));
+        this.set('playID', null);
+        this.set('currentYear', 2015);
+      }
     }, 100);
+    this.set('playID', id);
   }).drop(),
+
+  pause: task(function * () {
+    clearInterval(parseInt(this.get('playID')));
+    this.set('playID', null);
+  }),
 
   // actions: {
   //   play() {
