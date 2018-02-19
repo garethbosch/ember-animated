@@ -3,6 +3,8 @@ import layout from '../templates/components/bubble-chart';
 import { computed } from '@ember/object';
 import Move from 'ember-animated/motions/move';
 import { task } from 'ember-concurrency';
+import { rAF } from 'ember-animated/concurrency-helpers';
+
 
 export default Component.extend({
 
@@ -19,23 +21,29 @@ export default Component.extend({
 
   playID: null, 
   play: task(function * () {
-    if (this.get('playID') !== null) { return } //play in progress
-    let id = yield setInterval(() => {
-      if (this.get('currentYear') < 2015) {
+      while (this.get('currentYear') < 2015) {
         this.set('currentYear', parseInt(this.get('currentYear')) + 1);
-      } else {
-        clearInterval(parseInt(this.get('playID')));
-        this.set('playID', null);
-        this.set('currentYear', 2015);
-      }
-    }, 100);
-    this.set('playID', id);
+        yield rAF();
+      } 
   }).drop(),
 
-  pause: task(function * () {
-    clearInterval(parseInt(this.get('playID')));
-    this.set('playID', null);
-  }),
+  startingYear: 1950,
+  endingYear: 2015,
+  playLoop: task(function * () {
+    while (true) {
+      this.set('currentYear', parseInt(this.get('startingYear')));
+      while (this.get('currentYear') < parseInt(this.get('endingYear'))) {
+        this.set('currentYear', parseInt(this.get('currentYear')) + 1);
+        yield rAF();
+      } 
+    }
+  }).drop(),
+
+  actions: {
+  pause() {
+    this.get('play').cancelAll();
+    this.get('playLoop').cancelAll();
+  }},
 
   // actions: {
   //   play() {

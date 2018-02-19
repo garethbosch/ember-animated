@@ -14,25 +14,13 @@
           fill="lightgreen"
           stroke="black" stroke-width="0.5"
         />
-        </g>
+      </g>
     {{/each}}
   </svg>
 
-  <svg name="x-axis_Income" width="92%" height="12%" x="7%" y="87.8%" 
-      version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <line x1="" x2="100%" y1="1%" y2="1%" stroke="grey" stroke-width="1"/>
-      {{axis 10}}
-      <line x1="20%" x2="20%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="30%" x2="30%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="40%" x2="40%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="50%" x2="50%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="60%" x2="60%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="70%" x2="70%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="80%" x2="80%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="90%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="99.9%" x2="99.9%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
+  {{#chart-axis}}
     <text x="45%" y="90%" font-family="Verdana" font-size="16">Income</text>
-  </svg>
+  {{/chart-axis}}
 
   <svg name="y-axis_Life" width="6.75%" height="86%" x="0.3%" y="2%" 
       version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -53,11 +41,18 @@
   
 </svg>
 <br>
+<b>Run through years</b><br>
 {{currentYear}}
 {{input type='range' min='1950' max='2015' value=currentYear}} 
 <button onclick={{perform play}}>
   Play
 </button>
-<button onclick={{perform pause}}>
+<button onclick={{action 'pause'}}>
   Pause
+</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Starting year {{input type='number' min='1950' max='2015' value=startingYear}}
+&nbsp;&nbsp;&nbsp;
+Ending year {{input type='number' min='1950' max='2015' value=endingYear}}
+<button onclick={{perform playLoop}}>
+  Play loop
 </button>
