@@ -178,3 +178,26 @@
 .ea-time-control--slider {
     width: 100%;
 }
+.year-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 40%;
+    height: 10px;
+    background: rgb(102, 169, 231);
+}
+.year-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: 1px solid #1809f0;
+    height: 25px;
+    width: 12px;
+    border-radius: 3px;
+    background: #ffffff;
+    box-shadow: 1px 1px 1px #0059ff, 0px 0px 1px #0059ff;
+  }
+
+.year-slider::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+}
