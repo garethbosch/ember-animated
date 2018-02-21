@@ -181,8 +181,9 @@
 .year-slider {
     -webkit-appearance: none;
     appearance: none;
-    width: 40%;
-    height: 10px;
+    width: 90%;
+    height: 6px;
+    border-radius: 4px;
     background: rgb(102, 169, 231);
 }
 .year-slider::-webkit-slider-thumb {
@@ -190,14 +191,22 @@
     border: 1px solid #1809f0;
     height: 25px;
     width: 12px;
-    border-radius: 3px;
+    border-radius: 6px;
     background: #ffffff;
     box-shadow: 1px 1px 1px #0059ff, 0px 0px 1px #0059ff;
   }
-
 .year-slider::-moz-range-thumb {
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
-    background: #4CAF50; /* Green background */
-    cursor: pointer; /* Cursor on hover */
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+.chart-controls-table {
+    width: 900px;
+    /* border: 1px solid black; */
+}
+.chart-controls-table > tbody > tr > td {
+    /* border: 1px solid black; */
+    padding: 10px;
+    text-align: center;
 }

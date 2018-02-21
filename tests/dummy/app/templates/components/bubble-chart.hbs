@@ -40,19 +40,27 @@
   </svg>
   
 </svg>
+
 <br>
-<b>Run through years</b><br>
-{{currentYear}}
-{{input type='range' class='year-slider' min='1950' max='2015' value=currentYear}} 
-<button onclick={{perform play}}>
-  Play
-</button>
-<button onclick={{action 'pause'}}>
-  Pause
-</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Starting year {{input type='number' min='1950' max='2015' value=startingYear}}
-&nbsp;&nbsp;&nbsp;
-Ending year {{input type='number' min='1950' max='2015' value=endingYear}}
-<button onclick={{perform playLoop}}>
-  Play loop
-</button>
+<table class='chart-controls-table'><tbody>
+  <tr><td width='16.67%'></td><td width='16.67%'></td>
+    <td width='33.34%'>
+      <button onclick={{perform play}}>
+        Play
+      </button>
+      <button onclick={{action 'pause'}}>
+        Pause
+      </button></td><td width='16.67%'></td><td width='16.67%'></td></tr>
+  <tr><td colspan='6'>
+    <b>{{currentYear}}</b></td></tr>
+  <tr><td colspan='6'>
+    {{input type='range' class='year-slider' min='1950' max='2015' value=currentYear}} </td>
+  </tr>
+  <tr><td colspan='6'>
+      <button onclick={{perform playLoop}}>
+        Loop
+      </button>&nbsp;&nbsp;&nbsp;
+      start {{input type='number' min='1950' max='2015' value=startingYear}}&nbsp;
+      end {{input type='number' min='1950' max='2015' value=endingYear}}</td>
+  </tr>
+</tbody></table>
