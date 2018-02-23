@@ -39,20 +39,10 @@ export default Component.extend({
     }
   }).drop(),
 
-  actions: {
-  pause() {
+  actions: { pause() {
     this.get('play').cancelAll();
     this.get('playLoop').cancelAll();
   }},
-
-  // actions: {
-  //   play() {
-  //     setInterval(() => {
-  //       this.set('currentYear', parseInt(this.get('currentYear')) + 1);
-  //     }, 100);
-  //   }
-  // }
-  
 });
 
 function * transition() {

@@ -1,20 +1,13 @@
 <svg class="x-axis" width="92%" height="12%" x="7%" y="87.8%" 
       version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <line x1="" x2="100%" y1="1%" y2="1%" stroke="grey" stroke-width="1"/>
-      <line x1="10%" x2="10%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="20%" x2="20%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="30%" x2="30%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="40%" x2="40%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="50%" x2="50%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="60%" x2="60%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="70%" x2="70%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="80%" x2="80%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="90%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="99.9%" x2="99.9%" y1="" y2="10%" stroke="grey" stroke-width="1"/>
+    <line x1="" x2="100%" y1="1%" y2="1%" stroke="grey" stroke-width="2"/>
+    {{#axisTickMarks as |tick|}}
+      <line x1={{tick}} x2={{tick}} y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    {{/axisTickMarks}}
     {{yield}}
 </svg>
 
-<svg name="y-axis" width="6.75%" height="86%" x="0.3%" y="2%" 
+{{!-- <svg name="y-axis" width="6.75%" height="86%" x="0.3%" y="2%" 
       version="1.1" xmlns="http://www.w3.org/2000/svg">
     <line x1="99.5%" x2="99.5%" y1="" y2="100%" stroke="grey" stroke-width="1"/>
       <line x1="90%" x2="100%" y1="10%" y2="10%" stroke="grey" stroke-width="1"/>
@@ -27,4 +20,15 @@
       <line x1="90%" x2="100%" y1="80%" y2="80%" stroke="grey" stroke-width="1"/>
       <line x1="90%" x2="100%" y1="90%" y2="90%" stroke="grey" stroke-width="1"/>
     {{yield}}
-  </svg>
+  </svg> --}}
+
+    {{!-- <line x1="10%" x2="10%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    <line x1="20%" x2="20%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    <line x1="30%" x2="30%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    <line x1="40%" x2="40%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    <line x1="50%" x2="50%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    <line x1="60%" x2="60%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    <line x1="70%" x2="70%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    <line x1="80%" x2="80%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    <line x1="90%" x2="90%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
+    <line x1="100%" x2="100%" y1="" y2="10%" stroke="grey" stroke-width="2"/> --}}
