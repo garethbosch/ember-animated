@@ -18,10 +18,9 @@
     {{/each}}
   </svg>
 
-  {{#chart-axis}}
-    <text x="45%" y="90%" font-family="Verdana" font-size="16">Income</text>
-  {{/chart-axis}}
 
+
+{{!-- <text x="45%" y="90%" font-family="Verdana" font-size="16">Income</text> --}}
 
 {{!-- <text x="-90%" y="4%" font-family="Verdana" font-size="16" transform="rotate(270 87 88)">
     Life expectancy
@@ -54,3 +53,7 @@
       end {{input type='number' min='1950' max='2015' value=endingYear}}</td>
   </tr>
 </tbody></table>
+
+---<br>
+{{chart-axis model=model tickCount='10' key='gdp'}}<br>
+---

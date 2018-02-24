@@ -1,11 +1,20 @@
-<svg class="x-axis" width="92%" height="12%" x="7%" y="87.8%" 
+{{!-- <svg class="x-axis" width="92%" height="12%" x="7%" y="87.8%" 
       version="1.1" xmlns="http://www.w3.org/2000/svg">
     <line x1="" x2="100%" y1="1%" y2="1%" stroke="grey" stroke-width="2"/>
     {{#axisTickMarks as |tick|}}
       <line x1={{tick}} x2={{tick}} y1="" y2="10%" stroke="grey" stroke-width="2"/>
     {{/axisTickMarks}}
     {{yield}}
-</svg>
+</svg> --}}
+
+<strong>{{label}}</strong><br>
+number of tick marks: {{tickCount}}<br>
+tick marks: 
+{{#each tickMarks as |tick|}}
+  {{tick}} -
+{{/each}}
+<br>
+key: {{key}}
 
 {{!-- <svg name="y-axis" width="6.75%" height="86%" x="0.3%" y="2%" 
       version="1.1" xmlns="http://www.w3.org/2000/svg">

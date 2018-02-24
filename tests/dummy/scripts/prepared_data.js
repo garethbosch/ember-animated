@@ -3,6 +3,10 @@ let Papa = require('papaparse');
 let fs = require('fs');
 
 /**
+ * Originally used on three .csv files storing data on
+ * populations, life expectancies, and GDPs/capita from every country
+ * on the planet from 1850 - 2015.
+ * 
  * Creates an array of objects with data parsed from .csv files.
  * Returns this array as a JSON string.
  * This function was called once to create model_data.txt to store 
