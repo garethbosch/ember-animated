@@ -16,23 +16,26 @@
 
 <strong>{{label}}</strong><br>
 number of tick marks: {{tickCount}}<br>
-tick marks: 
+bounds: 
 {{#each tickValues as |tick|}}
   {{tick}} -
 {{/each}}
 <br>
 key: {{key}}
 <br>
-{{#each tickMarks as |mark|}}
-  - {{mark}}
+val: {{#each tickMarks as |mark|}}
+  - {{mark.figure}}
 {{/each}}<br>
+pos: {{#each tickMarks as |mark|}}
+  - {{mark.position}}
+{{/each}}<br><br>
 <svg class="x-axis" width="600" height="50" 
       version="1.1" xmlns="http://www.w3.org/2000/svg">
   <rect width="100%" height="100%" stroke="black" stroke-width="3" fill="transparent" />
-  <line x1="2%" x2="98%" y1="50%" y2="50%" stroke="grey" stroke-width="2"/>
-  {{#each tickMarks as |mark|}}
-    <line x1={{mark}} x2={{mark}} y1="50%" y2="70%" stroke="grey" stroke-width="4"/>
-  {{/each}}
+  <line x1="2%" x2="98%" y1="30%" y2="30%" stroke="grey" stroke-width="2"/>
+  {{!-- {{#each tickMarks as |mark|}}
+    <line x1={{mark}} x2={{mark}} y1="30%" y2="50%" stroke="grey" stroke-width="4"/>
+  {{/each}} --}}
 </svg>
 
 {{!-- <svg name="y-axis" width="6.75%" height="86%" x="0.3%" y="2%" 
