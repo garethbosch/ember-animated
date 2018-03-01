@@ -14,7 +14,7 @@
     {{yield}}
 </svg> --}}
 
-<strong>{{label}}</strong><br>
+{{!-- <strong>{{label}}</strong><br>
 number of tick marks: {{tickCount}}<br>
 bounds: 
 {{#each tickValues as |tick|}}
@@ -28,14 +28,15 @@ val: {{#each tickMarks as |mark|}}
 {{/each}}<br>
 pos: {{#each tickMarks as |mark|}}
   - {{mark.position}}
-{{/each}}<br><br>
-<svg class="x-axis" width="600" height="50" 
+{{/each}}<br><br> --}}
+<svg class="x-axis" width="92%" height="12%" x="7%" y="87.8%" 
       version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100%" height="100%" stroke="black" stroke-width="3" fill="transparent" />
-  <line x1="2%" x2="98%" y1="30%" y2="30%" stroke="grey" stroke-width="2"/>
-  {{!-- {{#each tickMarks as |mark|}}
-    <line x1={{mark}} x2={{mark}} y1="30%" y2="50%" stroke="grey" stroke-width="4"/>
-  {{/each}} --}}
+  <line x1="0%" x2="100%" y1="0%" y2="0%" stroke="grey" stroke-width="2"/>
+  {{#each tickMarks as |mark|}}
+    <line x1={{mark.position}} x2={{mark.position}} y1="0%" y2="20%" stroke="grey" stroke-width="2"/>
+    <text x={{mark.position}} y="40%" transform='translate(-12)' font-family="Verdana" font-size="10">{{mark.figure}}</text>
+  {{/each}}
+  <text x='40%' y="80%" font-family="Verdana" font-size="14">{{label}}</text>
 </svg>
 
 {{!-- <svg name="y-axis" width="6.75%" height="86%" x="0.3%" y="2%" 
