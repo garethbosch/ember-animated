@@ -1,68 +1,23 @@
-{{!-- <svg class="x-axis" width="92%" height="12%" x="7%" y="87.8%" 
-      version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <line x1="" x2="100%" y1="1%" y2="1%" stroke="grey" stroke-width="2"/>
-    <line x1="10%" x2="10%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="20%" x2="20%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="30%" x2="30%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="40%" x2="40%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="50%" x2="50%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="60%" x2="60%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="70%" x2="70%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="80%" x2="80%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="90%" x2="90%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="100%" x2="100%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    {{yield}}
-</svg> --}}
-
-{{!-- <strong>{{label}}</strong><br>
-number of tick marks: {{tickCount}}<br>
-bounds: 
-{{#each tickValues as |tick|}}
-  {{tick}} -
-{{/each}}
-<br>
-key: {{key}}
-<br>
-val: {{#each tickMarks as |mark|}}
-  - {{mark.figure}}
-{{/each}}<br>
-pos: {{#each tickMarks as |mark|}}
-  - {{mark.position}}
-{{/each}}<br><br> --}}
 {{#if isXaxis}}
   <svg class="x-axis" width="92%" height="12%" x="7%" y="87.8%" 
         version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <line x1="0%" x2="100%" y1="0%" y2="0%" stroke="grey" stroke-width="2"/>
+    <line class="axis-line" x1="0%" x2="100%" y1="0%" y2="0%" stroke="grey" stroke-width="2"/>
     {{#each tickMarks as |mark|}}
       <line x1={{mark.position}} x2={{mark.position}} y1="0%" y2="20%" stroke="grey" stroke-width="2"/>
       <text x={{mark.position}} y="40%" transform='translate(-12)' font-family="Verdana" font-size="10">{{mark.figure}}</text>
     {{/each}}
-    <text x='40%' y="80%" font-family="Verdana" font-size="14">{{label}}</text>
+    <text class="axis-lable" x="40%" y="80%" font-family="Verdana" font-size="14">{{label}}</text>
+  </svg>
+{{else if isYaxis}}
+  <svg class="y-axis" width="6.75%" height="86%" x="0.3%" y="2%" 
+      version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <line class="axis-line" x1="99.5%" x2="99.5%" y1="" y2="100%" stroke="grey" stroke-width="1"/>
+    {{#each tickMarks as |mark|}}
+      <line x1="90%" x2="100%" y1={{mark.position}} y2={{mark.position}} stroke="grey" stroke-width="2"/>
+      <text x="60%" y={{mark.position}} transform='translate(0 3)' font-family="Verdana" font-size="10">{{mark.figure}}</text>
+    {{/each}}
+    <text class="axis-lable" x="-90%" y="4%" font-family="Verdana" font-size="16" transform="rotate(270 87 88)">
+      {{label}}
+    </text>
   </svg>
 {{/if}}
-
-{{!-- <svg name="y-axis" width="6.75%" height="86%" x="0.3%" y="2%" 
-      version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <line x1="99.5%" x2="99.5%" y1="" y2="100%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="100%" y1="10%" y2="10%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="100%" y1="20%" y2="20%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="100%" y1="30%" y2="30%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="100%" y1="40%" y2="40%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="100%" y1="50%" y2="50%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="100%" y1="60%" y2="60%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="100%" y1="70%" y2="70%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="100%" y1="80%" y2="80%" stroke="grey" stroke-width="1"/>
-      <line x1="90%" x2="100%" y1="90%" y2="90%" stroke="grey" stroke-width="1"/>
-    {{yield}}
-  </svg> --}}
-
-    {{!-- <line x1="10%" x2="10%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="20%" x2="20%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="30%" x2="30%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="40%" x2="40%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="50%" x2="50%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="60%" x2="60%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="70%" x2="70%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="80%" x2="80%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="90%" x2="90%" y1="" y2="10%" stroke="grey" stroke-width="2"/>
-    <line x1="100%" x2="100%" y1="" y2="10%" stroke="grey" stroke-width="2"/> --}}

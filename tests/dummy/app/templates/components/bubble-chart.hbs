@@ -18,7 +18,8 @@
     {{/each}}
   </svg>
 
-{{chart-axis model=model axis='x' tickCount='10' key='gdp' log='2' label='Income (USD)'}}
+{{chart-axis model=model axis='x' tickCount=10 key='gdp' scale='log' label='Income (USD)'}}
+{{chart-axis model=model axis='y' tickCount=10 key='life' label='Life Expectancy'}}
 
 {{!-- <text x="45%" y="90%" font-family="Verdana" font-size="16">Income</text> --}}
 
