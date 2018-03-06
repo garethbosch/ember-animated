@@ -11,9 +11,9 @@ export default Component.extend({
   currentYear: 1980,
   points: computed('currentYear', 'model', function(){
     let currentYear = parseInt(this.get('currentYear'));
-    let myRow = this.get('model').filter(row => row.year === currentYear);
-
-    return myRow.sort((a, b) => b.population - a.population);
+    let yearlyData = this.get('model').filter(row => row.year === currentYear);
+    yearlyData = interpolate(yearlyData);
+    return yearlyData.sort((a, b) => b.population - a.population);
   }),
   transition,
 
@@ -47,4 +47,7 @@ export default Component.extend({
 
 function * transition() {
   this.keptSprites.forEach(s => this.animate(new Move(s)));
+}
+function interpolate(objectArray) {
+  return objectArray;
 }
