@@ -1,5 +1,5 @@
 import { test, module } from 'qunit';
-import { TimeControl } from 'ember-animated/test-helpers';
+import { TimeControl } from 'ember-animated/test-support';
 import { setupApplicationTest } from 'ember-qunit';
 import { currentURL, click, visit } from '@ember/test-helpers';
 import { findByText } from '../helpers/dom';
@@ -8,14 +8,14 @@ let time;
 
 module('Acceptance | bind', function(hooks) {
   setupApplicationTest(hooks);
-  hooks.beforeEach = function() {
+  hooks.beforeEach(function() {
     time = new TimeControl();
     time.runAtSpeed(40);
-  };
-  hooks.afterEach = function() {
+  });
+  hooks.afterEach(function() {
     time.finished();
     time = null;
-  };
+  });
 
   test('visiting /bind', async function(assert) {
     await visit('/bind');

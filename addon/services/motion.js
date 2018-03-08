@@ -1,16 +1,14 @@
-import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { computed } from '@ember/object';
 import { A } from '@ember/array';
 import Service from '@ember/service';
-import { DEBUG } from '@glimmer/env';
-import Ember from 'ember';
-import { task } from '../ember-scheduler';
+import { task } from '../-private/ember-scheduler';
 import {
   microwait,
   rAF,
   afterRender,
   allSettled
-} from '../concurrency-helpers';
+} from '..';
+import { WILDCARD } from '../components/animated-beacon';
 
 const MotionService = Service.extend({
   init() {
@@ -134,7 +132,7 @@ const MotionService = Service.extend({
   // Invalidation support for isAnimating
   _invalidateIsAnimating: task(function * () {
     yield rAF();
-    this.propertyDidChange('isAnimating');
+    this.notifyPropertyChange('isAnimating');
   }).observes('isAnimatingSync'),
 
   waitUntilIdle: task(function * () {
@@ -152,7 +150,7 @@ const MotionService = Service.extend({
   }),
 
   matchDestroyed(removed, transition, duration) {
-    if (this._orphanObserver && transition && removed.length > 0) {
+    if (this._orphanObserver && removed.length > 0) {
       // if these orphaned sprites may be capable of animating,
       // delegate them to the orphanObserver. It will do farMatching
       // for them.
@@ -251,7 +249,14 @@ const MotionService = Service.extend({
 
 function performMatches(sink, source) {
   sink.inserted.concat(sink.kept).forEach(sprite => {
-    let match = source.removed.find(mySprite => sprite.owner.id === mySprite.owner.id);
+    let match = source.removed.find(
+      mySprite =>
+        sprite.owner.group == mySprite.owner.group && (
+          sprite.owner.id === WILDCARD ||
+            mySprite.owner.id === WILDCARD ||
+            sprite.owner.id === mySprite.owner.id
+        )
+    );
     if (match) {
       sink.matches.set(sprite, match);
       sink.otherTasks.set(source.runAnimationTask, true);
@@ -267,41 +272,6 @@ function * ancestorsOf(component) {
     yield pointer;
     pointer = pointer.parentView;
   }
-}
-
-if (DEBUG) {
-  let idleFrames = 0;
-  const isIdle = function() {
-    return idleFrames > 2;
-  };
-
-  MotionService.reopen({
-    init() {
-      this._super(...arguments);
-      if (Ember.testing) {
-        registerWaiter(isIdle);
-      }
-      this.get('idlePoller').perform();
-    },
-
-    willDestroy() {
-      if (Ember.testing) {
-        unregisterWaiter(isIdle);
-      }
-      this._super(...arguments);
-    },
-
-    idlePoller: task(function * () {
-      while (true) {
-        yield rAF();
-        if (this.get('isAnimatingSync')) {
-          idleFrames = 0;
-        } else {
-          idleFrames++;
-        }
-      }
-    })
-  });
 }
 
 export default MotionService;

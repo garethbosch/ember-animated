@@ -1,8 +1,8 @@
 import { module, test } from 'qunit';
-import Sprite from 'ember-animated/sprite';
+import Sprite from 'ember-animated/-private/sprite';
 import $ from 'jquery';
-import Opacity from 'ember-animated/motions/opacity';
-import { TimeControl, MotionTester } from 'ember-animated/test-helpers';
+import { Opacity } from 'ember-animated/motions/opacity';
+import { MotionTester, TimeControl } from 'ember-animated/test-support';
 
 let tester, target, time;
 
@@ -13,7 +13,7 @@ function makeSprite() {
 }
 
 module("Unit | Opacity", function(hooks) {
-  hooks.beforeEach/* assert */(function() {
+  hooks.beforeEach(function() {
     time = new TimeControl();
 
     tester = MotionTester.create({

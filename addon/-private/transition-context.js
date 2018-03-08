@@ -1,9 +1,4 @@
-import { DEBUG } from '@glimmer/env';
-import {
-  spawnChild,
-  childrenSettled
-} from './scheduler';
-
+import { childrenSettled } from './scheduler';
 
 export default class TransitionContext {
   constructor(duration, insertedSprites, keptSprites, removedSprites, sentSprites, receivedSprites) {
@@ -13,7 +8,7 @@ export default class TransitionContext {
     this._removedSprites = removedSprites;
     this._sentSprites = sentSprites;
     this._receivedSprites = receivedSprites;
-    this._prepared = new Map();
+    this._prepared = new Set();
   }
 
   // the following things are all accessors in order to make them
@@ -40,44 +35,24 @@ export default class TransitionContext {
   }
 
   _prepareSprites(sprites) {
+    // Link them up, so that users can conveniently pass sprites
+    // around to Motions without also passing the transition context.
+    sprites.forEach(sprite => sprite._transitionContext = this);
+
     if (!this.prepareSprite) {
       return sprites;
     }
     return sprites.map(sprite => {
       if (!this._prepared.has(sprite)){
-        this._prepared.set(sprite, true);
+        this._prepared.add(sprite);
         sprite = this.prepareSprite(sprite);
       }
       return sprite;
     });
   }
 
-  animate(motion) {
-    if (motion.duration == null) {
-      motion.duration = this.duration;
-    }
-    let self = this;
-    return spawnChild(function *() {
-      self.onMotionStart(motion.sprite);
-      try {
-        yield * motion._run();
-      } finally {
-        self.onMotionEnd(motion.sprite);
-      }
-    });
-  }
   *_runToCompletion(transition) {
-    yield * transition.call(this);
+    yield * transition(this);
     yield childrenSettled();
   }
-}
-
-if (DEBUG) {
-  TransitionContext.prototype.printSprites = function (label){
-    let prefix = label ? label + ' ' : '';
-    /* eslint no-console:0 */
-    console.log(prefix + ['inserted', 'kept', 'removed', 'sent', 'received'].map(type => {
-      return type + '=' + this[`_${type}Sprites`].map(s => s.owner.id).join(',')
-    }).join(" | "));
-  };
 }

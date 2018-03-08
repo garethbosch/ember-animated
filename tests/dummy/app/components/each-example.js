@@ -1,11 +1,28 @@
 import { A } from '@ember/array';
 import { computed, set } from '@ember/object';
 import Component from '@ember/component';
-import { task, timeout } from 'ember-animated/ember-scheduler';
-import Move from 'ember-animated/motions/move';
+import { task, timeout } from 'ember-animated/-private/ember-scheduler';
+import move from 'ember-animated/motions/move';
+import { easeOut, easeIn } from 'ember-animated/easings/cosine';
 
 export default Component.extend({
-  rules,
+  transition: function * ({ insertedSprites, keptSprites, removedSprites }) {
+    insertedSprites.forEach(sprite => {
+      sprite.startAtPixel({ x: window.outerWidth });
+      move(sprite, { easing: easeOut });
+    });
+
+    keptSprites.forEach(move);
+
+    removedSprites.forEach(sprite => {
+      // the 0.8 here is purely so I can easily see that the elements
+      // are being properly removed immediately after they get far
+      // enough
+      sprite.endAtPixel({ x: window.outerWidth * 0.8 });
+      move(sprite, { easing: easeIn });
+    });
+  },
+
   currentSort: numeric,
   items: computed({
     get() {
@@ -79,42 +96,4 @@ function makeRandomItem() {
 
 function random() {
   return Math.random() - 0.5;
-}
-
-function * first() {
-  this.insertedSprites.forEach(sprite => {
-    sprite.reveal();
-  });
-
-  this.keptSprites.forEach(sprite => {
-    this.animate(new Move(sprite));
-  });
-}
-
-function * subsequent() {
-  this.insertedSprites.forEach(sprite => {
-    sprite.startAtPixel({ x: window.outerWidth });
-    this.animate(new Move(sprite));
-  });
-
-  this.keptSprites.forEach(sprite => {
-    this.animate(new Move(sprite));
-  });
-
-  this.removedSprites.forEach(sprite => {
-    // the 0.8 here is purely so I can easily see that the elements
-    // are being properly removed immediately after they get far
-    // enough
-    sprite.endAtPixel({ x: window.outerWidth * 0.8 });
-    this.animate(new Move(sprite));
-  });
-
-}
-
-function rules(firstTime) {
-  if (firstTime) {
-    return first;
-  } else {
-    return subsequent;
-  }
 }

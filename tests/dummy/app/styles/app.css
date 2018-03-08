@@ -2,17 +2,6 @@
     display: block;
 }
 
-.motion-indicator {
-    width: 10px;
-    height: 10px;
-    background-color: red;
-    display: inline-block;
-}
-
-.motion-indicator.active {
-    background-color: green;
-}
-
 .scenario-each > .animated-container {
     overflow: hidden;
     transform: translateZ(0);
@@ -35,6 +24,10 @@
 .scenario-swapping-lists .right {
     width: 40%;
     float: right;
+}
+
+.scenario-swapping-lists .left-item {
+    color: red;
 }
 
 .scenario-bind .animated-container {
@@ -139,44 +132,31 @@
     transform: translateX(20px);
 }
 
-.ea-time-control {
-    border: 1px solid black;
+
+.scenario-here-there > div {
     display: flex;
-    width: 50%;
-    padding: 0.5em 1.5em;
-    flex-direction: column;
-}
-.ea-time-control > div {
-    display: flex;
-    align-items: center;
-}
-.ea-time-control > div > label {
-    min-width: 8em;
-}
-.ea-time-control > div > div {
-    flex: 1;
-    position: relative;
-}
-.ea-time-control--tick-marks {
-    min-height: 1.5em;
 }
 
-.ea-time-control--tick-marks > div {
+.scenario-here-there > div > div {
+    width: 50%;
+}
+
+.scenario-here-there .demo-item {
+    width: 100px;
+    height: 100px;
+    background-color: blue;
+}
+
+.scenario-beacon-modal {
     position: absolute;
-    border-left: 1px solid black;
-    height: 1em;
-    margin-top: 1em;
-}
-.ea-time-control--tick-marks > div > button {
-    position: relative;
-    left: -50%;
-    top: -1em;
-    border: 0;
-    cursor: pointer;
-    text-align: center;
-}
-.ea-time-control--slider {
-    width: 100%;
+    left: 30%;
+    top: 40%;
+    width: 20em;
+    min-height: 10em;
+    background-color: #c4c4ff;
+    box-sizing: border-box;
+    padding: 2em;
+    border-radius: 5px;
 }
 .year-slider {
     -webkit-appearance: none;

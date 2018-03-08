@@ -5,8 +5,8 @@ node_js:
   # so that your addon works for all apps
   - "4"
 
-# This is only needed to workaround https://github.com/travis-ci/travis-ci/issues/8836
-sudo: true
+sudo: false
+
 dist: trusty
 
 addons:
@@ -22,10 +22,9 @@ env:
   matrix:
     # we recommend new addons test the current and previous LTS
     # as well as latest stable release (bonus points to beta/canary)
-    - EMBER_TRY_SCENARIO=ember-lts-2.4
-    - EMBER_TRY_SCENARIO=ember-lts-2.8
     - EMBER_TRY_SCENARIO=ember-lts-2.12
     - EMBER_TRY_SCENARIO=ember-lts-2.16
+    - EMBER_TRY_SCENARIO=ember-lts-2.18
     - EMBER_TRY_SCENARIO=ember-release
     - EMBER_TRY_SCENARIO=ember-beta
     - EMBER_TRY_SCENARIO=ember-canary
@@ -35,6 +34,7 @@ matrix:
   fast_finish: true
   allow_failures:
     - env: EMBER_TRY_SCENARIO=ember-canary
+    - env: EMBER_TRY_SCENARIO=ember-beta
 
 before_install:
   - npm config set spin false

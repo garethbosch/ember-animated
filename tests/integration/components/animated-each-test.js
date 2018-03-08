@@ -5,15 +5,14 @@ import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import QUnit, { module, test } from 'qunit';
 import $ from 'jquery';
-import { waitForAnimations } from 'ember-animated/test-helpers';
-import { Promise } from 'ember-animated/concurrency-helpers';
-import Motion from 'ember-animated/motion';
+import { animationsSettled } from 'ember-animated/test-support';
+import { Promise, Motion } from 'ember-animated';
+import { run } from '@ember/runloop';
 
 module('Integration | Component | animated each', function(hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function(assert) {
-    this.waitForAnimations = waitForAnimations;
     assert.listContents = function( $elts, expected, message ) {
       let values = $elts.toArray().map(e => $(e).text().trim());
       this.pushResult({
@@ -48,30 +47,30 @@ module('Integration | Component | animated each', function(hooks) {
   test('it can transition at first render', async function(assert) {
     let transitionCounter = 0;
     this.set('items', ['a', 'b', 'c']);
-    this.set('transition', function * () {
-      assert.equal(this.insertedSprites.length, 3);
+    this.set('transition', function * ({ insertedSprites }) {
+      assert.equal(insertedSprites.length, 3);
       transitionCounter++;
     });
     await render(hbs`
-      {{#animated-each items use=transition as |item|}}
+      {{#animated-each items use=transition initialInsertion=true as |item|}}
         <div class="test-child">{{item}}</div>
       {{/animated-each}}
     `);
 
-    return this.waitForAnimations().then(() => {
-      assert.listContents(this.$('.test-child'), ['a', 'b', 'c']);
-      assert.equal(transitionCounter, 1, 'transitionCounter');
-    });
+    await animationsSettled();
+
+    assert.listContents(this.$('.test-child'), ['a', 'b', 'c']);
+    assert.equal(transitionCounter, 1, 'transitionCounter');
   });
 
   test('it updates when list is replaced', async function(assert) {
     let transitionCounter = 0;
     this.set('items', ['a', 'b', 'c']);
-    this.set('transition', function * () {
-      if (++transitionCounter === 2) {
-        assert.equal(this.keptSprites.length, 2, 'kept sprites');
-        assert.equal(this.insertedSprites.length, 1, 'inserted sprites');
-        assert.equal(this.removedSprites.length, 1, 'removed sprites');
+    this.set('transition', function * ({ insertedSprites, removedSprites, keptSprites }) {
+      if (++transitionCounter === 1) {
+        assert.equal(keptSprites.length, 2, 'kept sprites');
+        assert.equal(insertedSprites.length, 1, 'inserted sprites');
+        assert.equal(removedSprites.length, 1, 'removed sprites');
       }
     });
     await render(hbs`
@@ -80,49 +79,51 @@ module('Integration | Component | animated each', function(hooks) {
       {{/animated-each}}
     `);
 
-    return this.waitForAnimations().then(() => {
-      this.set('items', ['a', 'x', 'c']);
-      return this.waitForAnimations();
-    }).then(() => {
-      assert.listContents(this.$('.test-child'), ['a', 'x', 'c']);
-      assert.equal(transitionCounter, 2, 'transitionCounter');
-    });
+    await animationsSettled();
+
+    this.set('items', ['a', 'x', 'c']);
+
+    await animationsSettled();
+
+    assert.listContents(this.$('.test-child'), ['a', 'x', 'c']);
+    assert.equal(transitionCounter, 1, 'transitionCounter');
   });
 
   test('it updates when list is mutated', async function(assert) {
     let transitionCounter = 0;
     this.set('items', A(['a', 'b', 'c']));
-    this.set('transition', function * () {
-      if (++transitionCounter === 2) {
-        assert.equal(this.keptSprites.length, 2, 'kept sprites');
-        assert.equal(this.insertedSprites.length, 1, 'inserted sprites');
-        assert.equal(this.removedSprites.length, 1, 'removed sprites');
+    this.set('transition', function * ({ insertedSprites, removedSprites, keptSprites }) {
+      if (++transitionCounter === 1) {
+        assert.equal(keptSprites.length, 2, 'kept sprites');
+        assert.equal(insertedSprites.length, 1, 'inserted sprites');
+        assert.equal(removedSprites.length, 1, 'removed sprites');
       }
     });
+
     await render(hbs`
       {{#animated-each items use=transition as |item|}}
         <div class="test-child">{{item}}</div>
       {{/animated-each}}
     `);
 
-    return this.waitForAnimations().then(() => {
+    await animationsSettled();
+    run(() => {
       this.get('items').replace(1, 1, ['x']);
-      return this.waitForAnimations();
-    }).then(() => {
-      assert.listContents(this.$('.test-child'), ['a', 'x', 'c']);
-      assert.equal(transitionCounter, 2, 'transitionCounter');
     });
+    await animationsSettled();
+    assert.listContents(this.$('.test-child'), ['a', 'x', 'c']);
+    assert.equal(transitionCounter, 1, 'transitionCounter');
   });
 
   test('it animates when an id is mutated', async function(assert) {
     assert.expect(5);
     let transitionCounter = 0;
     this.set('items', A([{ id: 'a'}, {id: 'b'}, {id: 'c'}]));
-    this.set('transition', function * () {
-      if (++transitionCounter === 2) {
-        assert.equal(this.keptSprites.length, 2, 'kept sprites');
-        assert.equal(this.insertedSprites.length, 1, 'inserted sprites');
-        assert.equal(this.removedSprites.length, 1, 'removed sprites');
+    this.set('transition', function * ({ insertedSprites, removedSprites, keptSprites }) {
+      if (++transitionCounter === 1) {
+        assert.equal(keptSprites.length, 2, 'kept sprites');
+        assert.equal(insertedSprites.length, 1, 'inserted sprites');
+        assert.equal(removedSprites.length, 1, 'removed sprites');
       }
     });
     await render(hbs`
@@ -131,49 +132,53 @@ module('Integration | Component | animated each', function(hooks) {
       {{/animated-each}}
     `);
 
-    return this.waitForAnimations().then(() => {
+    await animationsSettled();
+    run(() => {
       set(this.get('items')[1], 'id', 'x');
-      return this.waitForAnimations();
-    }).then(() => {
-      assert.listContents(this.$('.test-child'), ['a', 'x', 'c']);
-      assert.equal(transitionCounter, 2, 'transitionCounter');
     });
+    await animationsSettled();
+    assert.listContents(this.$('.test-child'), ['a', 'x', 'c']);
+    assert.equal(transitionCounter, 1, 'transitionCounter');
   });
 
   test('it animates when a watched property is mutated', async function(assert) {
     assert.expect(5);
     let transitionCounter = 0;
     this.set('items', A([{ id: 'a', x: 1, y: 2}, {id: 'b'}, {id: 'c'}]));
-    this.set('transition', function * () {
-      if (++transitionCounter === 2) {
-        assert.equal(this.keptSprites.length, 3, 'kept sprites');
-        assert.equal(this.insertedSprites.length, 0, 'inserted sprites');
-        assert.equal(this.removedSprites.length, 0, 'removed sprites');
+    this.set('transition', function * ({ insertedSprites, removedSprites, keptSprites }) {
+      if (++transitionCounter === 1) {
+        assert.equal(keptSprites.length, 3, 'kept sprites');
+        assert.equal(insertedSprites.length, 0, 'inserted sprites');
+        assert.equal(removedSprites.length, 0, 'removed sprites');
       }
     });
+
     await render(hbs`
       {{#animated-each items use=transition key="id" watch="x,y" as |item|}}
         <div class="test-child">{{item.id}}</div>
       {{/animated-each}}
     `);
 
-    return this.waitForAnimations().then(() => {
+    await animationsSettled();
+
+    run(() => {
       set(this.get('items')[0], 'y', 3);
-      return this.waitForAnimations();
-    }).then(() => {
-      assert.listContents(this.$('.test-child'), ['a', 'b', 'c']);
-      assert.equal(transitionCounter, 2, 'transitionCounter');
     });
+
+    await animationsSettled();
+
+    assert.listContents(this.$('.test-child'), ['a', 'b', 'c']);
+    assert.equal(transitionCounter, 1, 'transitionCounter');
   });
 
   test('it can match sprites that are leaving another component', async function(assert) {
-    assert.expect(11);
+    assert.expect(10);
 
     this.set('leftItems', A([{ id: 'a'}, {id: 'b'}, {id: 'c'}]));
     this.set('rightItems', A([]));
 
     this.set('leftTransition', function * () {
-      assert.equal(this.insertedSprites.length, 3, "first transition");
+      throw new Error("unexpected transition");
     });
 
     this.set('rightTransition', function * () {
@@ -188,39 +193,39 @@ module('Integration | Component | animated each', function(hooks) {
         <div class="test-child">{{item.id}}</div>
       {{/animated-each}}
     `);
-    return this.waitForAnimations().then(() => {
 
-      this.set('leftTransition', function * () {
-        assert.equal(this.keptSprites.length, 2, "left kept");
-        assert.equal(this.removedSprites.length, 0, "left removed");
-        assert.equal(this.sentSprites.length, 1, "left sent");
-        assert.equal(this.receivedSprites.length, 0, "left received");
-        assert.equal(this.insertedSprites.length, 0, "left inserted");
-      });
+    await animationsSettled();
 
-      this.set('rightTransition', function * () {
-        assert.equal(this.keptSprites.length, 0, "right kept");
-        assert.equal(this.removedSprites.length, 0, "right removed");
-        assert.equal(this.sentSprites.length, 0, "right sent");
-        assert.equal(this.receivedSprites.length, 1, "right received");
-        assert.equal(this.insertedSprites.length, 0, "right inserted");
-
-      });
-
-      this.set('leftItems', A([{ id: 'a'}, {id: 'c'}]));
-      this.set('rightItems', A([{id: 'b'}, ]));
-      return this.waitForAnimations();
+    this.set('leftTransition', function * ({ receivedSprites, insertedSprites, removedSprites, keptSprites, sentSprites }) {
+      assert.equal(keptSprites.length, 2, "left kept");
+      assert.equal(removedSprites.length, 0, "left removed");
+      assert.equal(sentSprites.length, 1, "left sent");
+      assert.equal(receivedSprites.length, 0, "left received");
+      assert.equal(insertedSprites.length, 0, "left inserted");
     });
+
+    this.set('rightTransition', function * ({ receivedSprites, insertedSprites, removedSprites, keptSprites, sentSprites }) {
+      assert.equal(keptSprites.length, 0, "right kept");
+      assert.equal(removedSprites.length, 0, "right removed");
+      assert.equal(sentSprites.length, 0, "right sent");
+      assert.equal(receivedSprites.length, 1, "right received");
+      assert.equal(insertedSprites.length, 0, "right inserted");
+
+    });
+
+    this.set('leftItems', A([{ id: 'a'}, {id: 'c'}]));
+    this.set('rightItems', A([{id: 'b'}, ]));
+    await animationsSettled();
   });
 
   test('it can match sprites that are leaving a destroyed component', async function(assert) {
-    assert.expect(2);
+    assert.expect(1);
 
     this.set('leftItems', A([{ id: 'a'}, {id: 'b'}, {id: 'c'}]));
     this.set('rightItems', A([{id: 'b'}, ]));
 
     this.set('leftTransition', function * () {
-      assert.equal(this.insertedSprites.length, 3, "first transition");
+      throw new Error("unexpected left transition");
     });
 
     this.set('rightTransition', function * () {
@@ -240,20 +245,21 @@ module('Integration | Component | animated each', function(hooks) {
         {{/animated-each}}
       {{/if}}
     `);
-    return this.waitForAnimations().then(() => {
 
-      this.set('leftTransition', function * () {
-        throw new Error("unexpected left transition");
-      });
+    await animationsSettled();
 
-      this.set('rightTransition', function * () {
-        assert.equal(this.receivedSprites.length, 1, "right found match");
-      });
 
-      this.set('leftAlive', false);
-      return this.waitForAnimations();
+    this.set('leftTransition', function * () {
+      throw new Error("unexpected left transition");
     });
 
+    this.set('rightTransition', function * ({ receivedSprites }) {
+      assert.equal(receivedSprites.length, 1, "right found match");
+    });
+
+    this.set('leftAlive', false);
+
+    await animationsSettled();
   });
 
   test('child animator can animate when a parent animator is planning to remove it', async function(assert) {
@@ -280,25 +286,25 @@ module('Integration | Component | animated each', function(hooks) {
       {{/animated-each}}
     `);
 
-    await this.waitForAnimations();
+    await animationsSettled();
 
-    this.set('outerTransition', function * () {
-      assert.deepEqual(this.keptSprites.map(s => s.owner.id), ['a', 'c'], 'kept sprites');
-      assert.deepEqual(this.insertedSprites.map(s => s.owner.id), [], 'inserted sprites');
-      assert.deepEqual(this.removedSprites.map(s => s.owner.id), ['b'], 'removed sprites');
+    this.set('outerTransition', function * ({ insertedSprites, removedSprites, keptSprites }) {
+      assert.deepEqual(keptSprites.map(s => s.owner.id), ['a', 'c'], 'kept sprites');
+      assert.deepEqual(insertedSprites.map(s => s.owner.id), [], 'inserted sprites');
+      assert.deepEqual(removedSprites.map(s => s.owner.id), ['b'], 'removed sprites');
     });
 
     let innerCounter = 0;
 
-    this.set('innerTransition', function * () {
+    this.set('innerTransition', function * ({ insertedSprites, removedSprites, keptSprites }) {
       innerCounter++;
-      assert.deepEqual(this.keptSprites.map(s => s.owner.id), [], 'kept sprites');
-      assert.deepEqual(this.insertedSprites.map(s => s.owner.id), [], 'inserted sprites');
-      assert.deepEqual(this.removedSprites.map(s => s.owner.id), ['comment-b'], 'removed sprites');
+      assert.deepEqual(keptSprites.map(s => s.owner.id), [], 'kept sprites');
+      assert.deepEqual(insertedSprites.map(s => s.owner.id), [], 'inserted sprites');
+      assert.deepEqual(removedSprites.map(s => s.owner.id), ['comment-b'], 'removed sprites');
     });
 
     this.set('items', ['a', 'c'].map(makeItem));
-    await this.waitForAnimations();
+    await animationsSettled();
     assert.equal(innerCounter, 1, "inner transition should run once")
   });
 
@@ -333,18 +339,18 @@ module('Integration | Component | animated each', function(hooks) {
       {{/animated-each}}
     `);
 
-    await this.waitForAnimations();
+    await animationsSettled();
 
     // Create animations that will block forever and notify us when they have started
     let sawOuter, sawInner;
     let outerIsAnimating = new Promise(r => sawOuter = r);
     let innerIsAnimating = new Promise(r => sawInner = r);
-    this.set('outerTransition', function * () {
-      this.removedSprites.forEach(s => this.animate(new TestMotion(s)));
+    this.set('outerTransition', function * ({ removedSprites }) {
+      removedSprites.forEach(s => new TestMotion(s).run());
       sawOuter();
     });
-    this.set('innerTransition', function * () {
-      this.removedSprites.forEach(s => this.animate(new TestMotion(s)));
+    this.set('innerTransition', function * ({ removedSprites }) {
+      removedSprites.forEach(s => new TestMotion(s).run());
       sawInner();
     });
 
@@ -355,25 +361,25 @@ module('Integration | Component | animated each', function(hooks) {
     await outerIsAnimating;
     await innerIsAnimating;
 
-    this.set('outerTransition', function * () {
-      assert.deepEqual(this.keptSprites.map(s => s.owner.id).sort(), ['a', 'b', 'c'], 'kept sprites');
-      assert.deepEqual(this.insertedSprites.map(s => s.owner.id), [], 'inserted sprites');
-      assert.deepEqual(this.removedSprites.map(s => s.owner.id), [], 'removed sprites');
+    this.set('outerTransition', function * ({ insertedSprites, removedSprites, keptSprites }) {
+      assert.deepEqual(keptSprites.map(s => s.owner.id).sort(), ['a', 'b', 'c'], 'kept sprites');
+      assert.deepEqual(insertedSprites.map(s => s.owner.id), [], 'inserted sprites');
+      assert.deepEqual(removedSprites.map(s => s.owner.id), [], 'removed sprites');
     });
 
     let innerCounter = 0;
-    this.set('innerTransition', function * () {
+    this.set('innerTransition', function * ({ receivedSprites, insertedSprites, removedSprites }) {
       innerCounter++;
-      assert.deepEqual(this.receivedSprites.map(s => s.owner.id), ['comment-b'], 'received sprites');
-      assert.deepEqual(this.insertedSprites.map(s => s.owner.id), [], 'inserted sprites');
-      assert.deepEqual(this.removedSprites.map(s => s.owner.id), [], 'removed sprites');
+      assert.deepEqual(receivedSprites.map(s => s.owner.id), ['comment-b'], 'received sprites');
+      assert.deepEqual(insertedSprites.map(s => s.owner.id), [], 'inserted sprites');
+      assert.deepEqual(removedSprites.map(s => s.owner.id), [], 'removed sprites');
     });
 
 
     // Interrupt with a new animation that undoes the previous change
     this.set('items', ['a', 'b', 'c'].map(makeItem));
 
-    await this.waitForAnimations();
+    await animationsSettled();
     assert.equal(innerCounter, 1, "inner transition should run once")
   });
 });

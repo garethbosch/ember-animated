@@ -1,10 +1,12 @@
 import { assign } from '@ember/polyfills';
-import Motion from '../motion';
-import Tween from '../tween';
-import { rAF } from '../concurrency-helpers';
+import { Motion, rAF, Tween } from '..';
 import linear from '../easings/linear';
 
-export default class Opacity extends Motion {
+export default function opacity(sprite, opts) {
+  return new Opacity(sprite, opts).run();
+}
+
+export class Opacity extends Motion {
   constructor(sprite, opts) {
     super(sprite, opts);
     this.prior = null;

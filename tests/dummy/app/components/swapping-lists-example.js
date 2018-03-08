@@ -1,8 +1,30 @@
 import Component from '@ember/component';
-import Move from 'ember-animated/motions/move';
+import move from 'ember-animated/motions/move';
+import { computed } from '@ember/object';
 
 export default Component.extend({
-  transition,
+  transition: computed('animateSendingSide', function() {
+    if (this.get('animateSendingSide')) {
+      return this.moveSent;
+    } else {
+      return this.moveReceived;
+    }
+  }),
+
+  moveReceived: function * ({ receivedSprites, insertedSprites }) {
+    receivedSprites.forEach(move);
+    // without this, they won't reveal until the end of the whole
+    // transition
+    insertedSprites.forEach(s => s.reveal());
+  },
+
+  moveSent: function * ({ sentSprites, insertedSprites }) {
+    sentSprites.forEach(move);
+    // without this, they won't reveal until the end of the whole
+    // transition
+    insertedSprites.forEach(s => s.reveal());
+  },
+
   init() {
     this._super();
     this.set('leftItems', makeRandomList());
@@ -36,12 +58,4 @@ function makeRandomList() {
   result.push({ id: 800 });
 
   return result.sort(numeric);
-}
-
-function * transition() {
-  this.receivedSprites.forEach(s => this.animate(new Move(s)));
-
-  // without this, they won't reveal until the end of the whole
-  // transition
-  this.insertedSprites.forEach(s => s.reveal());
 }

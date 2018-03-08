@@ -1,11 +1,10 @@
 import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
-import Sprite from 'ember-animated/sprite';
-import Motion from 'ember-animated/motion';
-import { rAF, microwait } from 'ember-animated/concurrency-helpers';
-import { MotionTester } from 'ember-animated/test-helpers';
+import Sprite from 'ember-animated/-private/sprite';
+import { rAF, microwait, Motion } from 'ember-animated';
+import { MotionTester } from 'ember-animated/test-support';
 import $ from 'jquery';
-import { logErrors } from 'ember-animated/scheduler';
+import { logErrors } from 'ember-animated/-private/scheduler';
 
 let tester;
 

@@ -8,15 +8,10 @@ import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { equalBounds, visuallyConstant } from '../../helpers/assertions';
-import { task } from 'ember-animated/ember-scheduler';
-import { current } from 'ember-animated/scheduler';
-import Motion from 'ember-animated/motion';
-import { afterRender, wait } from 'ember-animated/concurrency-helpers';
-
-import {
-  waitForAnimations
-} from 'ember-animated/test-helpers';
-
+import { task } from 'ember-animated/-private/ember-scheduler';
+import { current } from 'ember-animated/-private/scheduler';
+import { Motion, afterRender, wait } from 'ember-animated';
+import { animationsSettled, bounds as _bounds } from 'ember-animated/test-support';
 
 module('Integration | Component | animated container', function(hooks) {
   setupRenderingTest(hooks);
@@ -25,7 +20,7 @@ module('Integration | Component | animated container', function(hooks) {
     assert.equalBounds = equalBounds;
     assert.visuallyConstant = visuallyConstant;
     let here = this;
-    this.waitForAnimations = waitForAnimations;
+
     this.owner.register('component:fake-animator', Component.extend({
       motionService: service('-ea-motion'),
       init() {
@@ -156,9 +151,8 @@ module('Integration | Component | animated container', function(hooks) {
       });
     });
 
-    return this.waitForAnimations().then(() => {
-      assert.equal(motionSawHeight, 321);
-    });
+    await animationsSettled();
+    assert.equal(motionSawHeight, 321);
   });
 
   test('unlocks only after own motion is done', async function(assert) {
@@ -190,13 +184,11 @@ module('Integration | Component | animated container', function(hooks) {
         finalHeight: 300
       });
     });
-    return startedMotion.then(() => {
-      assert.equal(height(this.$('.animated-container')), 100, "still at previous height");
-      finishMotion();
-      return this.waitForAnimations();
-    }).then(() => {
-      assert.equal(height(this.$('.animated-container')), 300, "now at final height");
-    });
+    await startedMotion;
+    assert.equal(height(this.$('.animated-container')), 100, "still at previous height");
+    finishMotion();
+    await animationsSettled();
+    assert.equal(height(this.$('.animated-container')), 300, "now at final height");
   });
 
   test('unlocks only after animator\'s motion is done', async function(assert) {
@@ -220,13 +212,11 @@ module('Integration | Component | animated container', function(hooks) {
       });
     });
 
-    return wait(60).then(() => {
-      assert.equal(height(this.$('.animated-container')), 200, "should be locked at the static height we measured");
-      unblock();
-      return wait(60);
-    }).then(() => {
-      assert.equal(height(this.$('.animated-container')), 300, "unlocked and reflecting the actual final height of the animator");
-    });
+    await wait(60);
+    assert.equal(height(this.$('.animated-container')), 200, "should be locked at the static height we measured");
+    unblock();
+    await wait(60);
+    assert.equal(height(this.$('.animated-container')), 300, "unlocked and reflecting the actual final height of the animator");
   });
 
   test('passes provided duration to motion', async function(assert) {
@@ -251,9 +241,8 @@ module('Integration | Component | animated container', function(hooks) {
       });
     });
 
-    return this.waitForAnimations().then(() => {
-      assert.deepEqual(motionOpts, { duration: 456 });
-    });
+    await animationsSettled();
+    assert.deepEqual(motionOpts, { duration: 456 });
   });
 
   test('can animate initial render', async function(assert) {
@@ -277,9 +266,8 @@ module('Integration | Component | animated container', function(hooks) {
       {{/animated-container}}
     `);
 
-    return this.waitForAnimations().then(() => {
-      assert.equal(height(this.$('.animated-container')), 200, 'ends up unlocked');
-    });
+    await animationsSettled();
+    assert.equal(height(this.$('.animated-container')), 200, 'ends up unlocked');
   });
 
   test("Accounts for top margin collapse between self and child", async function(assert) {
@@ -366,9 +354,8 @@ module('Integration | Component | animated container', function(hooks) {
       });
     });
 
-    return this.waitForAnimations().then(() => {
-      assert.equal(bounds(this.$('.after')).top, initialTop + 1, 'only changes by one pixel');
-    });
+    await animationsSettled();
+    assert.equal(bounds(this.$('.after')).top, initialTop + 1, 'only changes by one pixel');
   });
 
   test("Accounts for own margin collapse as last content is removed", async function(assert) {
@@ -399,9 +386,8 @@ module('Integration | Component | animated container', function(hooks) {
       });
     });
 
-    return this.waitForAnimations().then(() => {
-      assert.equal(bounds(this.$('.after')).top, initialTop - 1, 'only changes by one pixel');
-    });
+    await animationsSettled();
+    assert.equal(bounds(this.$('.after')).top, initialTop - 1, 'only changes by one pixel');
   });
 
   test("Uses same timing for measurements as animated-each", async function(assert) {
@@ -421,13 +407,13 @@ module('Integration | Component | animated container', function(hooks) {
         {{/animated-each}}
       {{/animated-container}}
     `);
-    await this.waitForAnimations();
+    await animationsSettled();
     this.set('items', ['a', 'b']);
-    await this.waitForAnimations();
+    await animationsSettled();
   });
 
   function bounds($elt) {
-    return $elt[0].getBoundingClientRect();
+    return _bounds($elt[0]);
   }
 
   function height($elt) {

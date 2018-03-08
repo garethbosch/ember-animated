@@ -1,11 +1,10 @@
 import { alias } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import Component from '@ember/component';
-import Resize from '../motions/resize';
-import { task } from '../ember-scheduler';
-import Sprite from '../sprite';
-import { emptyBounds } from '../bounds';
-import { afterRender, microwait } from '../concurrency-helpers';
+import { Resize } from '../motions/resize';
+import { task } from '../-private/ember-scheduler';
+import Sprite from '../-private/sprite';
+import { afterRender, microwait } from '..';
 
 export default Component.extend({
   classNames: ['animated-container'],
@@ -81,7 +80,6 @@ export default Component.extend({
       if (!sprite) {
         sprite = Sprite.sizedEndingAt(this.element);
         this.sprite = sprite;
-        sprite.initialBounds = emptyBounds;
       } else {
         sprite.measureFinalBounds();
       }

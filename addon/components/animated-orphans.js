@@ -2,17 +2,16 @@ import { alias } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import Component from '@ember/component';
 import layout from '../templates/components/animated-orphans';
-import { task } from '../ember-scheduler';
-import { afterRender, microwait } from '../concurrency-helpers';
-import TransitionContext from '../transition-context';
+import { task } from '../-private/ember-scheduler';
+import { afterRender, microwait, continueMotions } from '..';
+import TransitionContext from '../-private/transition-context';
 import {
   spawnChild,
   childrenSettled,
   current
-} from '../scheduler';
-import Sprite from '../sprite';
-import partition from '../partition';
-import { continueMotions } from '../motion';
+} from '../-private/scheduler';
+import Sprite from '../-private/sprite';
+import partition from '../-private/partition';
 
 export default Component.extend({
   layout,
@@ -100,10 +99,10 @@ export default Component.extend({
     {
       let activeIds = Object.create(null);
       for (let sprite of activeSprites) {
-        activeIds[sprite.owner.id] = true;
+        activeIds[`${sprite.owner.group}/${sprite.owner.id}`] = true;
       }
       for (let entry of this._newOrphanTransitions) {
-        entry.removedSprites = entry.removedSprites.filter(s => !activeIds[s.owner.id]);
+        entry.removedSprites = entry.removedSprites.filter(s => !activeIds[`${s.owner.group}/${s.owner.id}`]);
       }
     }
 
@@ -184,20 +183,29 @@ export default Component.extend({
         }
       });
 
-      let context = new TransitionContext(
-        duration,
-        [],
-        [],
-        unmatchedRemovedSprites,
-        sentSprites,
-        []
-      );
-      context.onMotionStart = this._onFirstMotionStart.bind(this, activeSprites, cycle);
-      context.onMotionEnd = this._onMotionEnd.bind(this, cycle);
-      context.prepareSprite = this._prepareSprite.bind(this);
+      let self = this;
       spawnChild(function * () {
         yield microwait();
         sentSprites.forEach(s => s.hide());
+
+        // now that we've hidden any sent sprites, we can bail out
+        // early if there is no transition they want to run
+        if (!transition) {
+          return;
+        }
+
+        let context = new TransitionContext(
+          duration,
+          [],
+          [],
+          unmatchedRemovedSprites,
+          sentSprites,
+          []
+        );
+        context.onMotionStart = self._onFirstMotionStart.bind(self, activeSprites, cycle);
+        context.onMotionEnd = self._onMotionEnd.bind(self, cycle);
+        context.prepareSprite = self._prepareSprite.bind(self);
+
         yield * context._runToCompletion(transition);
       });
     }
@@ -224,6 +232,10 @@ export default Component.extend({
       } else {
         let sprite = Sprite.positionedStartingAt(element, ownSprite);
         sprite.owner = child;
+        // we need to flag each existing child for removal at the
+        // start of each animation. That's what reinitializes its
+        // removal blockers count.
+        child.flagForRemoval();
         return sprite;
       }
     }).filter(Boolean);

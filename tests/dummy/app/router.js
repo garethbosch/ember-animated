@@ -20,6 +20,9 @@ Router.map(function() {
   this.route('inline-text');
   this.route('orphan');
   this.route('chart');
+  this.route('here-there');
+  this.route('svg');
+  this.route('beacon');
 });
 
 export default Router;

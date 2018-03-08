@@ -1,14 +1,14 @@
 import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
-import Sprite from 'ember-animated/sprite';
+import Sprite from 'ember-animated/-private/sprite';
 import $ from 'jquery';
-import Move from 'ember-animated/motions/move';
+import { Move } from 'ember-animated/motions/move';
 import {
   equalBounds,
   approxEqualPixels,
   visuallyConstant
 } from '../helpers/assertions';
-import { TimeControl, MotionTester } from 'ember-animated/test-helpers';
+import { MotionTester, TimeControl } from 'ember-animated/test-support';
 
 let tester, environment, offsetParent, target, innerContent, time;
 

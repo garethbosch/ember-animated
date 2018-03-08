@@ -4,13 +4,13 @@ import { computed, get } from '@ember/object';
 import { inject as service } from '@ember/service';
 import Component from '@ember/component';
 import layout from '../templates/components/animated-each';
-import { task } from '../ember-scheduler';
-import { current } from '../scheduler';
-import { afterRender, microwait } from '../concurrency-helpers';
-import TransitionContext from '../transition-context';
-import Sprite from '../sprite';
-import { componentNodes, keyForArray } from 'ember-animated/ember-internals';
-import partition from '../partition';
+import { task } from '../-private/ember-scheduler';
+import { current } from '../-private/scheduler';
+import { afterRender, microwait } from '..';
+import TransitionContext from '../-private/transition-context';
+import Sprite from '../-private/sprite';
+import { componentNodes, keyForArray } from '../-private/ember-internals';
+import partition from '../-private/partition';
 
 export default Component.extend({
   layout,
@@ -19,6 +19,7 @@ export default Component.extend({
   duration: null,
   use: null,
   rules: null,
+  initialInsertion: false,
 
   init() {
     this._elementToChild = new WeakMap();
@@ -75,7 +76,7 @@ export default Component.extend({
   }),
 
   _invalidateRenderedChildren() {
-    this.propertyDidChange('renderedChildren');
+    this.notifyPropertyChange('renderedChildren');
   },
 
   _identitySignature(items, getKey) {
@@ -99,7 +100,7 @@ export default Component.extend({
   // on the `items` array we were given and our own earlier state, we
   // update a list of Child models that will be rendered by our
   // template and decide whether an animation is needed.
-  renderedChildren: computed('items.[]', function() {
+  renderedChildren: computed('items.[]', 'group', function() {
     let firstTime = this._firstTime;
     this._firstTime = false;
 
@@ -109,6 +110,7 @@ export default Component.extend({
     let oldSignature = this._prevSignature;
     let newItems = this.get('items');
     let newSignature = this._identitySignature(newItems, getKey);
+    let group = this.get('group') || '__default__';
     this._prevItems = newItems ? newItems.slice() : [];
     this._prevSignature = newSignature;
     if (!newItems) { newItems = []; }
@@ -127,11 +129,11 @@ export default Component.extend({
       let id = getKey(value);
       let index = oldIndices.get(id);
       if (index != null) {
-        let child = new Child(id, value);
+        let child = new Child(group, id, value);
         child.state = 'kept';
         return child;
       } else {
-        return new Child(id, value);
+        return new Child(group, id, value);
       }
     }).concat(
       oldChildren
@@ -145,9 +147,7 @@ export default Component.extend({
 
     if (!isStable(oldSignature, newSignature)) {
       let transition = this._transitionFor(firstTime, oldItems, newItems);
-      if (transition) {
-        this.get('animate').perform(transition);
-      }
+      this.get('animate').perform(transition, firstTime);
     }
 
     return newChildren;
@@ -199,27 +199,23 @@ export default Component.extend({
       this._ancestorWillDestroyUs = false;
       // treat all our sprites as re-inserted, because we had already handed them off as orphans
       let transition = this._transitionFor(this._firstTime, [], this._prevItems);
-      if (transition) {
-        this.get('animate').perform(transition);
-      }
+      this.get('animate').perform(transition);
     }
   },
 
   _letSpritesEscape() {
     let transition = this._transitionFor(this._firstTime, this._prevItems, []);
-    if (transition) {
-      let removedSprites = [];
-      let parent;
-      for (let element of this._ownElements()) {
-        if (!parent) {
-          parent = Sprite.offsetParentStartingAt(element);
-        }
-        let sprite = Sprite.positionedStartingAt(element, parent);
-        sprite.owner = this._elementToChild.get(element);
-        removedSprites.push(sprite);
+    let removedSprites = [];
+    let parent;
+    for (let element of this._ownElements()) {
+      if (!parent) {
+        parent = Sprite.offsetParentStartingAt(element);
       }
-      this.get('motionService').matchDestroyed(removedSprites, transition, this.get('durationWithDefault'));
+      let sprite = Sprite.positionedStartingAt(element, parent);
+      sprite.owner = this._elementToChild.get(element);
+      removedSprites.push(sprite);
     }
+    this.get('motionService').matchDestroyed(removedSprites, transition, this.get('durationWithDefault'));
   },
 
   willDestroyElement() {
@@ -323,7 +319,7 @@ export default Component.extend({
   //   animators that are still in `runAnimation`, then we are
   //   cleaning up our own sprite state.
   //
-  animate: task(function * (transition) {
+  animate: task(function * (transition, firstTime) {
     let {
       parent,
       currentSprites,
@@ -332,7 +328,7 @@ export default Component.extend({
       removedSprites
     } = yield this.get('startAnimation').perform(transition, current());
 
-    let { matchingAnimatorsFinished } = yield this.get('runAnimation').perform(transition, parent, currentSprites, insertedSprites, keptSprites, removedSprites);
+    let { matchingAnimatorsFinished } = yield this.get('runAnimation').perform(transition, parent, currentSprites, insertedSprites, keptSprites, removedSprites, firstTime);
     yield this.get('finalizeAnimation').perform(insertedSprites, keptSprites, removedSprites, matchingAnimatorsFinished);
   }).restartable(),
 
@@ -371,7 +367,7 @@ export default Component.extend({
     return { parent, currentSprites, insertedSprites, keptSprites, removedSprites };
   }),
 
-  runAnimation: task(function * (transition, parent, currentSprites, insertedSprites, keptSprites, removedSprites) {
+  runAnimation: task(function * (transition, parent, currentSprites, insertedSprites, keptSprites, removedSprites, firstTime) {
     // fill the keptSprites and removedSprites lists by comparing what
     // we had in currentSprites with what is still in the DOM now that
     // rendering happened.
@@ -467,6 +463,28 @@ export default Component.extend({
     matchedKeptSprites.forEach(s => s.hide());
     sentSprites.forEach(s => s.hide());
 
+    // By default, we don't treat sprites as "inserted" when our
+    // component first renders. You can override that by setting
+    // initialInsertion=true.
+    if (firstTime && !this.get('initialInsertion')) {
+      // Here we are effectively hiding the inserted sprites from the
+      // user's transition function and just immediately revealing
+      // them in their final positions instead.
+      unmatchedInsertedSprites.forEach(s => s.reveal());
+      unmatchedInsertedSprites = [];
+    }
+
+    // Early exit if nothing is happening.
+    if (!transition ||
+        ( unmatchedInsertedSprites.length === 0 &&
+          unmatchedKeptSprites.length === 0 &&
+          unmatchedRemovedSprites.length === 0 &&
+          sentSprites.length === 0 &&
+          receivedSprites.length === 0 &&
+          matchedKeptSprites.length === 0)) {
+      return { matchingAnimatorsFinished };
+    }
+
     let context = new TransitionContext(
       this.get('durationWithDefault'),
       unmatchedInsertedSprites,                      // user-visible insertedSprites
@@ -508,7 +526,7 @@ export default Component.extend({
 
     if (removedSprites.length > 0) {
       // trigger a rerender to reap our removed children
-      this.propertyDidChange('renderedChildren');
+      this.notifyPropertyChange('renderedChildren');
       // wait for the render to happen before we allow our animation
       // to be done
       yield afterRender();
@@ -526,13 +544,11 @@ export default Component.extend({
   },
 
   _transitionFor(firstTime, oldItems, newItems) {
-    let transition = this.get('use');
-    if (transition) {
-      return transition;
-    }
-    let rules = this.get('rules');
+    let rules = this.get('rules')
     if (rules) {
-      return rules(firstTime, oldItems, newItems);
+      return rules({firstTime, oldItems, newItems});
+    } else {
+      return this.get('use');
     }
   }
 }).reopenClass({
@@ -541,7 +557,8 @@ export default Component.extend({
 
 
 class Child {
-  constructor(id, value) {
+  constructor(group, id, value) {
+    this.group = group;
     this.id = id;
     this.value = value;
 
@@ -575,7 +592,7 @@ class Child {
   }
 
   clone() {
-    return new Child(this.id, this.value);
+    return new Child(this.group, this.id, this.value);
   }
 }
 
