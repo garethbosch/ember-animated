@@ -14,10 +14,10 @@ export default Component.extend({
   label: 'Your Axis', // name of the axis
 
   isXaxis: computed('axis', function() {
-    return this.get('axis') === 'x' || this.get('axis') === 'X';
+    return this.get('axis').toLowerCase() === 'x';
   }),
   isYaxis: computed('axis', function() {
-    return this.get('axis') === 'y' || this.get('axis') === 'Y';
+    return this.get('axis').toLowerCase() === 'y';
   }),
   axisBounds: computed('model', 'key', function() {
     return keyValueBounds(this.get('model'), this.get('key'));
@@ -30,10 +30,7 @@ export default Component.extend({
 // Find the minimun and maximun values that exist in all rows of
 //   the model for the given key.
 function keyValueBounds(rows, key) {
-  let keyVals = [];
-  rows.forEach(row => {
-    keyVals.push(row[key]);
-  });
+  let keyVals = rows.map(row => row[key]);
   let upperBound = keyVals.reduce(function(a, b) {
     return Math.max(a, b);
   });
@@ -50,6 +47,7 @@ function tickPositions(numberOfTicks, bounds, scale, isYaxis) {
   let min = bounds[0];
   let max = bounds[1];
   let marks = [];
+  // catch NaN
   let interval = 100/numberOfTicks;
   let value;
   let posOnAxis

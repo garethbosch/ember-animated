@@ -5,20 +5,22 @@
   <svg name="chart_field" width="92%" height="86%" x="7%" y="2%" 
       version="1.1" xmlns="http://www.w3.org/2000/svg">  
     {{#each points as |point|}}
-      <g>
-        <title>{{point.country}}<br>{{point.population}} people<br>${{point.gdp}} income/capita<br>{{point.life}} years expected</title>
-        <circle
-          cx={{scale point.gdp minValue=142 maxValue=182668 scale="log" }}
-          cy={{scale point.life minValue=10 maxValue=90 invert=true}}
-          r={{scale point.population minValue=2000 maxValue="1380000000" scaleCircleArea=80 minCircleArea=6}}
-          fill="lightgreen"
-          stroke="black" stroke-width="0.5"
-        />
-      </g>
+      <circle
+        cx={{scale point.gdp minValue=142 maxValue=182668 scale="log" }}
+        cy={{scale point.life minValue=10 maxValue=90 invert=true}}
+        r={{scale point.population minValue=2000 maxValue="1380000000" scaleCircleArea=80 minCircleArea=6}}
+        fill="lightgreen"
+        stroke="black" stroke-width="0.5">
+        <title>
+          {{point.country}}<br>{{point.population}} people<br>${{point.gdp}} income/capita<br>{{point.life}} years expected
+        </title>
+      </circle>
     {{/each}}
   </svg>
+
   {{chart-axis model=model axis='x' tickCount=10 key='gdp' scale='log' label='Income (USD)'}}
   {{chart-axis model=model axis='y' tickCount=10 key='life' label='Life Expectancy'}}
+  
 </svg>
 
 <br>
