@@ -1,24 +1,33 @@
 import Component from '@ember/component';
 import layout from '../templates/components/bubble-chart';
 import { computed } from '@ember/object';
-import Move from 'ember-animated/motions/move';
 import { task, timeout } from 'ember-concurrency';
 import { rAF } from 'ember-animated';
 import moveCircle from '../motions/move-circle';
 
 
 export default Component.extend({
+  layout,
 
   currentYear: 1980,
   fastCurrentYear: 1980,
   points: computed('currentYear', 'model', function(){
     let currentYear = parseInt(this.get('currentYear'));
     let yearlyData = this.get('model').filter(row => row.year === currentYear);
-    yearlyData = interpolate(yearlyData);
+    yearlyData.forEach(bubble => {
+      bubble.hue = 'orange';
+    });
     return yearlyData.sort((a, b) => b.population - a.population);
   }),
+  changeName,
 
-  layout,
+  myColor: 'orange',
+  myNum: 999,
+  setColor: task(function * () {
+    let hues = ['aquamarine', 'coral', 'chocolate', 'chartreuse', 'cornflowerblue', 'gold', 
+                'lightgreen', 'lightsteelblue', 'mediumpurple', 'orchid', 'peru', 'thistle'];
+    this.set('myNum', Math.floor(Math.random() * 20));
+  }).on('init'),
 
   playID: null, 
   play: task(function * () {
@@ -32,7 +41,7 @@ export default Component.extend({
       this.set('currentYear', parseInt(this.get('fastCurrentYear')));
       yield timeout(200);
     } 
-}).on('init'),
+  }).on('init'),
 
   startingYear: 1950,
   endingYear: 2015,
@@ -56,6 +65,6 @@ export default Component.extend({
   }},
 });
 
-function interpolate(objectArray) {
-  return objectArray;
+function changeName(name) {
+  return name + "00000";
 }
