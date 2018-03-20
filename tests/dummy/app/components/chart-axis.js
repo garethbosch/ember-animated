@@ -7,8 +7,8 @@ export default Component.extend({
   layout,
   tagName: '',
 
-  key: '',            // aspect of the model to be used for the axis
-  tickCount: 10,      // how many tick marks displayed on the axis
+  key: '',            // element of the model to be used for the axis
+  tickCount: 10,      // how many tick marks to display on the axis
   scale: '',          // 'log' or nothing
   axis: 'x',          // 'x' or 'y' axis
   label: 'Your Axis', // name of the axis
@@ -27,7 +27,7 @@ export default Component.extend({
   }),
 });
 
-// Find the minimun and maximun values that exist in all rows of
+// Finds the minimun and maximun values that exist in all rows of
 //   the model for the given key.
 function keyValueBounds(rows, key) {
   let keyVals = rows.map(row => row[key]);
@@ -59,10 +59,11 @@ function tickPositions(numberOfTicks, bounds, scale, isYaxis) {
       // truncate this percentage of the axis to 2 dec places
       posOnAxis = (Math.trunc( (i + interval) * 100 ) / 100);
       // real value of this percentage on a log base 2 scale
-      value = Math.pow(2, (posOnAxis/100 * (max - min) + min));
-      marks.push({figure: Math.round(value), position: posOnAxis.toString(10)+'%'});
+      value = Math.round(Math.pow(2, (posOnAxis/100 * (max - min) + min)));
+      marks.push({figure: roundLabel(value), position: posOnAxis.toString(10)+'%'});
     }
-  } 
+    marks.pop();  // ignore the last tickmark on the axis
+} 
   else if (scale !== 'log') {
     for (let i = 0; i+interval <= 100; i+= interval) { 
       posOnAxis = (Math.trunc( (i + interval) * 100 ) / 100);
@@ -73,6 +74,42 @@ function tickPositions(numberOfTicks, bounds, scale, isYaxis) {
       }
       marks.push({figure: Math.round(value), position: posOnAxis.toString(10)+'%'})
     }
+    marks.pop();
   }
-  return marks;
+  return consolidateDups(marks);
+}
+
+function roundLabel(val) {
+  let factor;
+  switch (val.toString(10).length) {
+    case 2:
+      factor = Math.pow(10, -1);
+      break;
+    case 3:
+      factor = Math.pow(10, -2);
+      break;
+    case 4:
+      factor = Math.pow(10, -2);
+      break;
+    case 5:
+      factor = Math.pow(10, -3);
+      break;
+    case 6:
+      factor = Math.pow(10, -4);
+      break;
+    case 7:
+      factor = Math.pow(10, -6);
+      break;
+    default:
+      factor = Math.pow(10, 0);
+      break;
+  }
+  return Math.round(val * factor) / factor;
+}
+
+// Find duplicate values of markList.figure (the value of the chart tick mark)
+//   and delete them.
+function consolidateDups(markList) {
+
+  return markList;
 }

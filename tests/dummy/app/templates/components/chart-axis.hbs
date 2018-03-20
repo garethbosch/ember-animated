@@ -1,19 +1,21 @@
 {{#if isXaxis}}
-  <svg class="x-axis" width="92%" height="12%" x="7%" y="87.8%" 
-        version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <svg class="x-axis" width="92%" height="12%" x="7%" y="87.8%" version="1.1" xmlns="http://www.w3.org/2000/svg">
     <line class="axis-line" x1="0%" x2="100%" y1="0%" y2="0%" stroke="grey" stroke-width="2"/>
     {{#each tickMarks as |mark|}}
-      <line x1={{mark.position}} x2={{mark.position}} y1="0%" y2="20%" stroke="grey" stroke-width="2"/>
+      <line x1={{mark.position}} x2={{mark.position}} y1="0%" y2="20%" stroke="grey" stroke-width="6">
+        <title>{{mark.position}}</title>
+      </line>
       <text x={{mark.position}} y="40%" transform='translate(-12)' font-family="Verdana" font-size="10">{{mark.figure}}</text>
     {{/each}}
     <text class="axis-lable" x="40%" y="80%" font-family="Verdana" font-size="14">{{label}}</text>
   </svg>
 {{else if isYaxis}}
-  <svg class="y-axis" width="6.75%" height="86%" x="0.3%" y="2%" 
-      version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <line class="axis-line" x1="99.5%" x2="99.5%" y1="" y2="100%" stroke="grey" stroke-width="1"/>
+  <svg class="y-axis" width="6.75%" height="86%" x="0.3%" y="2%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <line class="axis-line" x1="99.5%" x2="99.5%" y1="" y2="100%" stroke="grey" stroke-width="2"/>
     {{#each tickMarks as |mark|}}
-      <line x1="90%" x2="100%" y1={{mark.position}} y2={{mark.position}} stroke="grey" stroke-width="2"/>
+      <line x1="90%" x2="100%" y1={{mark.position}} y2={{mark.position}} stroke="grey" stroke-width="6">
+        <title>{{mark.position}}</title>
+      </line>
       <text x="60%" y={{mark.position}} transform='translate(0 3)' font-family="Verdana" font-size="10">{{mark.figure}}</text>
     {{/each}}
     <text class="axis-lable" x="-90%" y="4%" font-family="Verdana" font-size="16" transform="rotate(270 87 88)">
