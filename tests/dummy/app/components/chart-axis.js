@@ -50,7 +50,7 @@ function tickPositions(numberOfTicks, bounds, scale, isYaxis) {
   // catch NaN
   let interval = 100/numberOfTicks;
   let value;
-  let posOnAxis
+  let posOnAxis;
   if (scale === 'log') {
     min = Math.log2(min);
     max = Math.log2(max);
@@ -72,7 +72,8 @@ function tickPositions(numberOfTicks, bounds, scale, isYaxis) {
       } else { 
         value = posOnAxis/100 * (max - min) + min;
       }
-      marks.push({figure: Math.round(value), position: posOnAxis.toString(10)+'%'})
+      marks.push({figure: roundLabel(value), position: posOnAxis.toString(10)+'%'});
+      // marks.push({figure: Math.round(value), position: posOnAxis.toString(10)+'%'});
     }
     marks.pop();
   }
@@ -80,6 +81,7 @@ function tickPositions(numberOfTicks, bounds, scale, isYaxis) {
 }
 
 function roundLabel(val) {
+  val = Math.trunc(val);
   let factor;
   switch (val.toString(10).length) {
     case 2:
@@ -109,7 +111,7 @@ function roundLabel(val) {
 
 // Find duplicate values of markList.figure (the value of the chart tick mark)
 //   and delete them.
-function consolidateDups(markList) {
+function consolidateDups(list) {
 
-  return markList;
+  return list;
 }
