@@ -39,6 +39,7 @@ function keyValueBounds(rows, key) {
   });
   return [lowerBound, upperBound];
 }
+
 // Finds the positions (in percent) of the tick marks on the axis
 //   and the real values of those positions.
 // Returns an array of objects. Each object is a tick mark on the axis
@@ -72,16 +73,21 @@ function tickPositions(numberOfTicks, bounds, scale, isYaxis) {
       } else { 
         value = posOnAxis/100 * (max - min) + min;
       }
-      marks.push({figure: roundLabel(value), position: posOnAxis.toString(10)+'%'});
-      // marks.push({figure: Math.round(value), position: posOnAxis.toString(10)+'%'});
+      if (max - min <= 100) {       // the range is too small for roundLabel() to make sense
+        value = Math.round(value);  //   (it will cause duplicate tick mark values)
+      } else {
+        value = roundLabel(value);
+      }
+      marks.push({figure: Math.round(value), position: posOnAxis.toString(10)+'%'});
     }
     marks.pop();
   }
-  return consolidateDups(marks);
+  return marks;
 }
 
+// Rounds the value based on number of digits
 function roundLabel(val) {
-  val = Math.trunc(val);
+  val = Math.trunc(val);  // round it as an integer
   let factor;
   switch (val.toString(10).length) {
     case 2:
@@ -107,11 +113,4 @@ function roundLabel(val) {
       break;
   }
   return Math.round(val * factor) / factor;
-}
-
-// Find duplicate values of markList.figure (the value of the chart tick mark)
-//   and delete them.
-function consolidateDups(list) {
-
-  return list;
 }

@@ -9,10 +9,9 @@
         cx={{scale point.gdp minValue=142 maxValue=182668 scale="log" }}
         cy={{scale point.life minValue=10 maxValue=90 invert=true}}
         r={{scale point.population minValue=2000 maxValue="1380000000" scaleCircleArea=100 minCircleArea=6}}
-        fill={{myColor}}
+        fill="orange"
         stroke="black" stroke-width="0.5">
         <title>
-          {{point.hue}}
           {{point.country}}<br>{{point.population}} people<br>${{point.gdp}} income/capita<br>{{point.life}} years expected
         </title>
       </circle>
@@ -37,7 +36,9 @@
   <tr><td colspan='6'>
     <b>{{currentYear}}</b></td></tr>
   <tr><td colspan='6'>
-    {{input type='range' class='year-slider' min='1950' max='2015' value=fastCurrentYear}} </td>
+    {{!-- {{input type='range' class='year-slider' min='1950' max='2015' value=currentYear}} --}}
+    {{input type='range' class='year-slider' min='1950' max='2015' value=fastCurrentYear}} 
+    </td>
   </tr>
   <tr><td colspan='6'>
       <button onclick={{perform playLoop}}>
